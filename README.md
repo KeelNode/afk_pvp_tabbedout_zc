@@ -20,7 +20,7 @@ If you are interested in learning more about how this macro works or about simil
 If you like this macro and want to support my work, you can do so via Ko-Fi - [Keelnode](https://ko-fi.com/kielchrishi)
 Your support means the world to us and allows us to keep enhancing and developing macros like this one. 🥰
 
-# Destiny setup/settings:
+# Destiny setup/settings/guide:
 ## Quick guide:
 ```
 - GAME setup:
