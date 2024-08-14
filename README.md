@@ -36,7 +36,7 @@ If you like this macro and want to support my work, you can do so via Ko-Fi - [K
     - SCORE LIMIT: 25, 50 or 100
        - 25 Provides Event items, Weapon XP but 0 crucible reputation points 
        - 50, 75 and 100 (or higher) Provides Event items, Weapon XP and crucible Reputation points
-          - 50 and 75 provide same amount of crucible reputation
+          - ❗ 50 and 75 provide same amount of crucible reputation ❗
 
 - CONTROLLER setup:
     - Default settings - see screenshot below
