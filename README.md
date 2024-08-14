@@ -81,8 +81,8 @@ OTHER
   - 100 = MORE Crucible reputation & Weapon XP & event items (if available, such as Silver Leaves from Solstice)
 
 Work In Progress:
-✅ option to swap between Score Limits of 25/50/100 - respectively prioritising and providing more rep
-🚧 HDD/SSD options to automagically accounting for timings, allowing fastest possible runtime of each instance 
+✅ option to swap between Score Limits of 25/50/100 - respectively prioritising and providing more rep \n
+🚧 HDD/SSD options to automagically accounting for timings, allowing fastest possible runtime of each instance  \n
 🚧 Auto-setup private crucible settings for this farm
 
 # How To Use
