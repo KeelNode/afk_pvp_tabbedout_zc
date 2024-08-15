@@ -672,7 +672,6 @@ status = 0
             AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
             AAAAAAAAAA==
             )"
-
             wrapper := Base64Dec( wrapperbase64, jeff )
 
             Base64Dec( ByRef B64, ByRef Bin ) {  ; By SKAN / 18-Aug-2017
@@ -723,13 +722,13 @@ status = 0
             CLR_CreateObject(Assembly, TypeName, Args*){
                 if !(argCount := Args.MaxIndex())
                     return Assembly.CreateInstance_2(TypeName, true)
-                
+
                 vargs := ComObjArray(0xC, argCount)
                 Loop % argCount
                     vargs[A_Index-1] := Args[A_Index]
-                
+
                 static Array_Empty := ComObjArray(0xC,0), null := ComObject(13,0)
-                
+
                 return Assembly.CreateInstance_3(TypeName, true, 0, null, vargs, null, Array_Empty)
             }
 
@@ -783,7 +782,7 @@ status = 0
             CLR_CompileAssembly(Code, References, ProviderAssembly, ProviderType, AppDomain=0, FileName="", CompilerOptions=""){
                 if !AppDomain
                     AppDomain := CLR_GetDefaultDomain()
-                
+
                 if !(asmProvider := CLR_LoadLibrary(ProviderAssembly, AppDomain))
                 || !(codeProvider := asmProvider.CreateInstance(ProviderType))
                 || !(codeCompiler := codeProvider.CreateCompiler())
@@ -791,21 +790,21 @@ status = 0
 
                 if !(asmSystem := (ProviderAssembly="System") ? asmProvider : CLR_LoadLibrary("System", AppDomain))
                     return 0
-                
+
                 StringSplit, Refs, References, |, %A_Space%%A_Tab%
                 aRefs := ComObjArray(8, Refs0)
                 Loop % Refs0
                     aRefs[A_Index-1] := Refs%A_Index%
-                
+
                 prms := CLR_CreateObject(asmSystem, "System.CodeDom.Compiler.CompilerParameters", aRefs)
                 , prms.OutputAssembly          := FileName
                 , prms.GenerateInMemory        := FileName=""
                 , prms.GenerateExecutable      := SubStr(FileName,-3)=".exe"
                 , prms.CompilerOptions         := CompilerOptions
                 , prms.IncludeDebugInformation := true
-                
+
                 compilerRes := codeCompiler.CompileAssemblyFromSource(prms, Code)
-                
+
                 if error_count := (errors := compilerRes.Errors).Count
                 {
                     error_text := ""
@@ -840,7 +839,7 @@ status = 0
                     this.asm := CLR_LoadLibrary(A_Temp "\vigemwrapper.dll")
                 }
             }
-            
+
             CreateInstance(cls){
                 try {
                     return this.asm.CreateInstance(cls)
@@ -877,7 +876,7 @@ status = 0
             __New(){
                 ViGEmWrapper.Init()
                 this.Instance := ViGEmWrapper.CreateInstance(this.helperClass)
-                
+
                 if (this.Instance.OkCheck() != "OK"){
                     msgbox,4,Exotic Class Farm Script, The .dll failed to load!`n`nPlease visit the #support channel in our discord for help resolving this.`n`nPress yes to launch our discord server for help!
                     IfMsgBox, Yes
@@ -891,11 +890,11 @@ status = 0
                     }       
                     }
             }
-            
+
             SendReport(){
                 this.Instance.SendReport()
             }
-            
+
             SubscribeFeedback(callback){
                 this.Instance.SubscribeFeedback(callback)
             }
@@ -907,46 +906,46 @@ status = 0
             __New(){
                 static buttons := {A: 4096, B: 8192, X: 16384, Y: 32768, LB: 256, RB: 512, LS: 64, RS: 128, Back: 32, Start: 16, Xbox: 1024}
                 static axes := {LX: 2, LY: 3, RX: 4, RY: 5, LT: 0, RT: 1}
-                
+
                 this.Buttons := {}
                 for name, id in buttons {
                     this.Buttons[name] := new this._ButtonHelper(this, id)
                 }
-                
+
                 this.Axes := {}
                 for name, id in axes {
                     this.Axes[name] := new this._AxisHelper(this, id)
                 }
-                
+
                 this.Dpad := new this._DpadHelper(this)
-                
+
                 base.__New()
             }
-            
+
             class _ButtonHelper {
                 __New(parent, id){
                     this._Parent := parent
                     this._Id := id
                 }
-                
+
                 SetState(state){
                     this._Parent.Instance.SetButtonState(this._Id, state)
                     this._Parent.Instance.SendReport()
                     return this._Parent
                 }
             }
-            
+
             class _AxisHelper {
                 __New(parent, id){
                     this._Parent := parent
                     this._id := id
                 }
-                
+
                 SetState(state){
                     this._Parent.Instance.SetAxisState(this._Id, this.ConvertAxis(state))
                     this._Parent.Instance.SendReport()
                 }
-                
+
                 ConvertAxis(state){
                     value := round((state * 655.36) - 32768)
                     if (value == 32768)
@@ -954,13 +953,13 @@ status = 0
                     return value
                 }
             }
-            
+
             class _DpadHelper {
                 _DpadStates := {1:0, 8:0, 2:0, 4:0} ; Up, Right, Down, Left
                 __New(parent){
                     this._Parent := parent
                 }
-                
+
                 SetState(state){
                     static dpadDirections := { None: {1:0, 8:0, 2:0, 4:0}
                         , Up: {1:1, 8:0, 2:0, 4:0}
@@ -1005,19 +1004,19 @@ status = 0
             ;guiID                      :       name of the ahk gui id for the overlay window, if 0 defaults to "ShinsOverlayClass_TICKCOUNT"
             ;
             ;notes                      :       if planning to attach to window these parameters can all be left blank
-            
+
             __New(x_orTitle:=0,y_orClient:=1,width_orForeground:=1,height:=0,alwaysOnTop:=1,vsync:=0,clickThrough:=1,taskBarIcon:=0,guiID:=0) {
-            
-            
+
+
                 ;[input variables] you can change these to affect the way the script behaves
-                
+
                 this.interpolationMode := 0 ;0 = nearestNeighbor, 1 = linear ;affects DrawImage() scaling 
                 this.data := []             ;reserved name for general data storage
                 this.HideOnStateChange := 1
-            
-            
+
+
                 ;[output variables] you can read these to get extra info, DO NOT MODIFY THESE
-                
+
                 this.x := x_orTitle                 ;overlay x position OR title of window to attach to
                 this.y := y_orClient                ;overlay y position OR attach to client area
                 this.width := width_orForeground    ;overlay width OR attached overlay only drawn when window is in foreground
@@ -1027,7 +1026,7 @@ status = 0
                 this.attachHWND := 0                ;HWND of the attached window, 0 if not attached
                 this.attachClient := 0              ;1 if using client space, 0 otherwise
                 this.attachForeground := 0          ;1 if overlay is only drawn when the attached window is the active window; 0 otherwise
-                
+
                 ;Generally with windows there are invisible borders that allow
                 ;the window to be resized, but it makes the window larger
                 ;these values should contain the window x, y offset and width, height for actual postion and size
@@ -1037,12 +1036,12 @@ status = 0
                 this.realHeight := 0
                 this.realX2 := 0
                 this.realY2 := 0
-                
+
                 this.callbacks := {"Size":0,"Position":0,"Active":0}
                 ;Size       :       [this]
                 ;Position:  :       [this]
                 ;Active     :       [this,state]
-            
+
                 ;#############################
                 ;   Setup internal stuff
                 ;#############################
@@ -1057,10 +1056,10 @@ status = 0
                 this.guiID := guiID := (guiID = 0 ? "ShinsOverlayClass_" a_tickcount : guiID)
                 this.owned := 0
                 this.alwaysontop := alwaysontop
-                
+
                 this._cacheImage := this.mcode("VVdWMfZTg+wMi0QkLA+vRCQoi1QkMMHgAoXAfmSLTCQki1wkIA+26gHIiUQkCGaQD7Z5A4PDBIPBBIn4D7bwD7ZB/g+vxpn3/YkEJA+2Qf0Pr8aZ9/2JRCQED7ZB/A+vxpn3/Q+2FCSIU/wPtlQkBIhT/YhD/on4iEP/OUwkCHWvg8QMifBbXl9dw5CQkJCQ|V1ZTRTHbRItUJEBFD6/BRo0MhQAAAABFhcl+YUGD6QFFD7bSSYnQQcHpAkqNdIoERQ+2WANBD7ZAAkmDwARIg8EEQQ+vw5lB9/qJx0EPtkD9QQ+vw5lB9/pBicFBD7ZA/ECIefxEiEn9QQ+vw0SIWf+ZQff6iEH+TDnGdbNEidhbXl/DkJCQkJCQkJCQkJCQ")
                 this._dtc := this.mcode("VVdWU4PsEIt8JCQPtheE0g+EKgEAADHtx0QkBAAAAAAx9jHAx0QkDAAAAAC7CQAAADHJx0QkCAAAAACJLCTrQI1Kn4D5BXdojUqpD7bRuQcAAACDwAEp2cHhAtPiAdaD+wd0XIPDAQ+2FAeJwYTSD4S2AAAAPQAQAAAPhKsAAACD+wl1u41oAYD6fHQLiejr1o20JgAAAACAfA8BY3XuiUQkDDH2g8ACMdvru410JgCNSr+A+QV3WI1KyeuOjXYAixQki2wkKINEJAgBidPB4wKJHCSLXCQEiUQkBI1LAYlMlQCLTCQMKdmJ64ssJIlMKwSJdCsIidODwwOJHCS7CQAAAOlf////kI20JgAAAACNStCA+QkPhi////+JwbsJAAAAhNIPhUr///+LRCQIg8QQW15fXcOJ9o28JwAAAADHRCQIAAAAAItEJAiDxBBbXl9dw5CQkJCQkJCQkJCQkA==|QVVBVFVXVlNJicsPtgmEyQ+EEgEAADH2Mdsx7UUx0kG5CQAAAEUx5DHARTHAvwcAAADrSA8fQABEjUGfQYD4BXdORI1BqYn5RQ+2wIPAAUQpycHhAkHT4EUBwkGD+Qd0P0GDwQFMY8BDD7YMA4TJD4SCAAAAPQAQAAB0e0GD+Ql1tkSNaAGA+Xx0fUSJ6OvVRI1Bv0GA+AV3PkSNQcnrpkxjw0SNTgGDwwNBg8QBRokMgkqNDIUAAAAAQYnoQbkJAAAAQSnwRIlUCgiJxkSJRAoE65EPH0AARI1B0EGA+AkPhmD///9MY8BBuQkAAACEyQ+Ffv///0SJ4FteX11BXEFdww8fRAAAQ4B8AwFjD4V3////icVFMdKDwAJFMcnpQf///w8fQABFMeREieBbXl9dQVxBXcOQkJCQkJCQkJA=")
-                
+
                 this.LoadLib("d2d1","dwrite","dwmapi","gdiplus")
                 VarSetCapacity(gsi, 24, 0)
                 NumPut(1,gsi,0,"uint")
@@ -1068,7 +1067,7 @@ status = 0
                 this.gdiplusToken := token
                 this._guid("{06152247-6f50-465a-9245-118bfd3b6007}",clsidFactory)
                 this._guid("{b859ee5a-d838-4b5b-a2e8-1adc7d93db48}",clsidwFactory)
-                
+
                 if (clickThrough)
                     gui %guiID%: +hwndhwnd -Caption +E0x80000 +E0x20
                 else
@@ -1077,7 +1076,7 @@ status = 0
                     gui %guiID%: +AlwaysOnTop
                 if (!taskBarIcon)
                     gui %guiID%: +ToolWindow
-                
+
                 this.hwnd := hwnd
                 DllCall("ShowWindow","Uptr",this.hwnd,"uint",(clickThrough ? 8 : 1))
 
@@ -1146,17 +1145,17 @@ status = 0
                 this.wFactory := wFactory
 
                 this.InitFuncs()
-                
+
                 if (x_orTitle != 0 and winexist(x_orTitle))
                     this.AttachToWindow(x_orTitle,y_orClient,width_orForeground)
                 else
                     this.SetPosition(x_orTitle,y_orClient)
-                
+
 
                 this.Clear()
 
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;AttachToWindow
             ;
@@ -1170,7 +1169,7 @@ status = 0
             ;Notes              ;               Does not actually 'attach', but rather every BeginDraw() fuction will check to ensure it's 
             ;                                   updated to the attached windows position/size
             ;                                   Could use SetParent but it introduces other issues, I'll explore further later
-            
+
             AttachToWindow(title,AttachToClientArea:=0,foreground:=1,setOwner:=0) {
                 if (title = "") {
                     this.Err("AttachToWindow: Error","Expected title string, but empty variable was supplied!")
@@ -1193,7 +1192,7 @@ status = 0
                 this.attachClient := AttachToClientArea
                 this.attachForeground := foreground
                 this.AdjustWindow(x,y,w,h)
-                
+
                 VarSetCapacity(newSize,16)
                 NumPut(this.width,newSize,0,"uint")
                 NumPut(this.height,newSize,4,"uint")
@@ -1209,14 +1208,14 @@ status = 0
                     this.owned := 0
                 }
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;BeginDraw
             ;
             ;return             ;               Returns 1 if either attached window is active in the foreground or no window is attached; 0 otherwise
             ;
             ;Notes              ;               Must always call EndDraw to finish drawing and update the overlay
-            
+
             BeginDraw() {
                 if (this.attachHWND) {
                     if (!DllCall("GetWindowRect","Uptr",this.attachHWND,"ptr",this.tBufferPtr) or (this.attachForeground and DllCall("GetForegroundWindow","cdecl Ptr") != this.attachHWND)) {
@@ -1252,7 +1251,7 @@ status = 0
                     if (!this.drawing and this.alwaysontop) {
                         winset,alwaysontop,on,% "ahk_id " this.hwnd
                     }
-                    
+
                 } else {
                     if (!DllCall("GetWindowRect","Uptr",this.hwnd,"ptr",this.tBufferPtr)) {
                         if (this.drawing) {
@@ -1283,7 +1282,7 @@ status = 0
                             this.callbacks["position"].call(this)
                     }
                 }
-                
+
                 DllCall(this._BeginDraw,"Ptr",this.renderTarget)
                 DllCall(this._Clear,"Ptr",this.renderTarget,"Ptr",this.clrPtr)
                 if (this.drawing = 0) {
@@ -1294,19 +1293,19 @@ status = 0
                 }
                 return this.drawing := 1
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;EndDraw
             ;
             ;return             ;               Void
             ;
             ;Notes              ;               Must always call EndDraw to finish drawing and update the overlay
-            
+
             EndDraw() {
                 if (this.drawing)
                     DllCall(this._EndDraw,"Ptr",this.renderTarget,"Ptr*",tag1,"Ptr*",tag2)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawImage
             ;
@@ -1325,7 +1324,7 @@ status = 0
             ;rotationOffsetY    :               Y offset to base rotations on (defaults to center y)
             ;
             ;return             ;               Void
-            
+
             DrawImage(image,dstX,dstY,dstW:=0,dstH:=0,srcX:=0,srcY:=0,srcW:=0,srcH:=0,alpha:=1,drawCentered:=0,rotation:=0,rotOffX:=0,rotOffY:=0) {
                 if (!i := this.imageCache[image]) {
                     i := this.cacheImage(image)
@@ -1344,7 +1343,7 @@ status = 0
                 NumPut(srcY,this.rect2Ptr,4,"float")
                 NumPut(srcX + (srcW=0?i.w:srcW),this.rect2Ptr,8,"float")
                 NumPut(srcY + (srcH=0?i.h:srcH),this.rect2Ptr,12,"float")
-                
+
                 if (rotation != 0) {
                     if (this.bits) {
                         if (rotOffX or rotOffY) {
@@ -1366,7 +1365,7 @@ status = 0
                     DllCall(this._DrawImage,"ptr",this.renderTarget,"ptr",i.p,"ptr",this.rect1Ptr,"float",alpha,"uint",this.interpolationMode,"ptr",this.rect2Ptr)
                 }
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;GetTextMetrics
             ;
@@ -1379,7 +1378,7 @@ status = 0
             ;return             ;               An array containing width, height and line count of the string
             ;
             ;Notes              ;               Used to measure a string before drawing it
-            
+
             GetTextMetrics(text,size,fontName,maxWidth:=5000,maxHeight:=5000) {
                 local
                 if (!p := this.fonts[fontName size "400"]) {
@@ -1388,17 +1387,17 @@ status = 0
                 varsetcapacity(bf,64)
                 DllCall(this.vTable(this.wFactory,18),"ptr",this.wFactory,"WStr",text,"uint",strlen(text),"Ptr",p,"float",maxWidth,"float",maxHeight,"Ptr*",layout)
                 DllCall(this.vTable(layout,60),"ptr",layout,"ptr",&bf,"uint")
-                
+
                 w := numget(bf,8,"float")
                 wTrailing := numget(bf,12,"float")
                 h := numget(bf,16,"float")
-                
+
                 DllCall(this.vTable(layout,2),"ptr",layout)
-                
+
                 return {w:w,width:w,h:h,height:h,wt:wTrailing,widthTrailing:w,lines:numget(bf,32,"uint")}
-                
+
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;SetTextRenderParams
             ;
@@ -1426,13 +1425,13 @@ status = 0
             ;return             ;               Void
             ;
             ;Notes              ;               Used to affect how text is rendered
-            
+
             SetTextRenderParams(gamma:=1,contrast:=0,cleartype:=1,pixelGeom:=0,renderMode:=0) {
                 local
                 DllCall(this.vTable(this.wFactory,12),"ptr",this.wFactory,"Float",gamma,"Float",contrast,"Float",cleartype,"Uint",pixelGeom,"Uint",renderMode,"Ptr*",params) "`n" params
                 DllCall(this.vTable(this.renderTarget,36),"Ptr",this.renderTarget,"Ptr",params)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawText
             ;
@@ -1452,7 +1451,7 @@ status = 0
             ;                                   Outline ........... ol[hex color]           : Example > olFF000000      (Default: DISABLED)
             ;
             ;return             ;               Void
-            
+
             DrawText(text,x,y,size:=18,color:=0xFFFFFFFF,fontName:="Arial",extraOptions:="") {
                 local
                 if (!RegExMatch(extraOptions,"w([\d\.]+)",w))
@@ -1460,13 +1459,13 @@ status = 0
                 if (!RegExMatch(extraOptions,"h([\d\.]+)",h))
                     h1 := this.height
                 bold := (RegExMatch(extraOptions,"bold") ? 700 : 400)
-                
+
                 if (!p := this.fonts[fontName size bold]) {
                     p := this.CacheFont(fontName,size,bold)
                 }
-                
+
                 DllCall(this.vTable(p,3),"ptr",p,"uint",(InStr(extraOptions,"aRight") ? 1 : InStr(extraOptions,"aCenter") ? 2 : 0))
-                
+
                 if (RegExMatch(extraOptions,"ds([a-fA-F\d]+)",ds)) {
                     if (!RegExMatch(extraOptions,"dsx([\d\.]+)",dsx))
                         dsx1 := 1
@@ -1476,16 +1475,16 @@ status = 0
                 } else if (RegExMatch(extraOptions,"ol(\w{8})",ol)) {
                     this.DrawTextOutline(p,text,x,y,w1,h1,"0x" ol1)
                 }
-                
+
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
                 NumPut(y,this.tBufferPtr,4,"float")
                 NumPut(x+w1,this.tBufferPtr,8,"float")
                 NumPut(y+h1,this.tBufferPtr,12,"float")
-                
+
                 DllCall(this._DrawText,"ptr",this.renderTarget,"wstr",text,"uint",strlen(text),"ptr",p,"ptr",this.tBufferPtr,"ptr",this.brush,"uint",0,"uint",0)
             }
-            
+
             DrawTextExt(text,x,y,size:=18,color:=0xFFFFFFFF,fontName:="Arial",extraOptions:="") {
                 local
                 if (!RegExMatch(extraOptions,"w([\d\.]+)",w))
@@ -1493,13 +1492,13 @@ status = 0
                 if (!RegExMatch(extraOptions,"h([\d\.]+)",h))
                     h1 := this.height
                 bold := (RegExMatch(extraOptions,"i)bold") ? 700 : 400)
-                
+
                 if (!p := this.fonts[fontName size bold]) {
                     p := this.CacheFont(fontName,size,bold)
                 }
-                
+
                 DllCall(this.vTable(p,3),"ptr",p,"uint",(InStr(extraOptions,"aRight") ? 1 : InStr(extraOptions,"aCenter") ? 2 : 0))
-                
+
                 if (RegExMatch(extraOptions,"ds([a-fA-F\d]+)",ds)) {
                     if (!RegExMatch(extraOptions,"dsx([\d\.]+)",dsx))
                         dsx1 := 1
@@ -1546,7 +1545,7 @@ status = 0
                     DllCall(this._DrawText,"ptr",this.renderTarget,"wstr",text,"uint",strlen(text),"ptr",p,"ptr",this.tBufferPtr,"ptr",this.brush,"uint",0,"uint",0)
                 }
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawEllipse
             ;
@@ -1558,7 +1557,7 @@ status = 0
             ;thickness          :               Thickness of the line
             ;
             ;return             ;               Void
-            
+
             DrawEllipse(x, y, w, h, color, thickness:=1) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1567,8 +1566,8 @@ status = 0
                 NumPut(h,this.tBufferPtr,12,"float")
                 DllCall(this._DrawEllipse,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush,"float",thickness,"ptr",this.stroke)
             }
-            
-            
+
+
             ;####################################################################################################################################################################################################################################
             ;FillEllipse
             ;
@@ -1579,7 +1578,7 @@ status = 0
             ;color              :               Color in 0xAARRGGBB or 0xRRGGBB format (if 0xRRGGBB then alpha is set to FF (255))
             ;
             ;return             ;               Void
-            
+
             FillEllipse(x, y, w, h, color) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1588,7 +1587,7 @@ status = 0
                 NumPut(h,this.tBufferPtr,12,"float")
                 DllCall(this._FillEllipse,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawCircle
             ;
@@ -1599,7 +1598,7 @@ status = 0
             ;thickness          :               Thickness of the line
             ;
             ;return             ;               Void
-            
+
             DrawCircle(x, y, radius, color, thickness:=1) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1608,7 +1607,7 @@ status = 0
                 NumPut(radius,this.tBufferPtr,12,"float")
                 DllCall(this._DrawEllipse,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush,"float",thickness,"ptr",this.stroke)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;FillCircle
             ;
@@ -1618,7 +1617,7 @@ status = 0
             ;color              :               Color in 0xAARRGGBB or 0xRRGGBB format (if 0xRRGGBB then alpha is set to FF (255))
             ;
             ;return             ;               Void
-            
+
             FillCircle(x, y, radius, color) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1627,7 +1626,7 @@ status = 0
                 NumPut(radius,this.tBufferPtr,12,"float")
                 DllCall(this._FillEllipse,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawRectangle
             ;
@@ -1639,7 +1638,7 @@ status = 0
             ;thickness          :               Thickness of the line
             ;
             ;return             ;               Void
-            
+
             DrawRectangle(x, y, w, h, color, thickness:=1) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1648,7 +1647,7 @@ status = 0
                 NumPut(y+h,this.tBufferPtr,12,"float")
                 DllCall(this._DrawRectangle,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush,"float",thickness,"ptr",this.stroke)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;FillRectangle
             ;
@@ -1659,7 +1658,7 @@ status = 0
             ;color              :               Color in 0xAARRGGBB or 0xRRGGBB format (if 0xRRGGBB then alpha is set to FF (255))
             ;
             ;return             ;               Void
-            
+
             FillRectangle(x, y, w, h, color) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1668,7 +1667,7 @@ status = 0
                 NumPut(y+h,this.tBufferPtr,12,"float")
                 DllCall(this._FillRectangle,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawRoundedRectangle
             ;
@@ -1682,7 +1681,7 @@ status = 0
             ;thickness          :               Thickness of the line
             ;
             ;return             ;               Void
-            
+
             DrawRoundedRectangle(x, y, w, h, radiusX, radiusY, color, thickness:=1) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1693,7 +1692,7 @@ status = 0
                 NumPut(radiusY,this.tBufferPtr,20,"float")
                 DllCall(this._DrawRoundedRectangle,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush,"float",thickness,"ptr",this.stroke)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;FillRectangle
             ;
@@ -1706,7 +1705,7 @@ status = 0
             ;color              :               Color in 0xAARRGGBB or 0xRRGGBB format (if 0xRRGGBB then alpha is set to FF (255))
             ;
             ;return             ;               Void
-            
+
             FillRoundedRectangle(x, y, w, h, radiusX, radiusY, color) {
                 this.SetBrushColor(color)
                 NumPut(x,this.tBufferPtr,0,"float")
@@ -1717,7 +1716,7 @@ status = 0
                 NumPut(radiusY,this.tBufferPtr,20,"float")
                 DllCall(this._FillRoundedRectangle,"Ptr",this.renderTarget,"Ptr",this.tBufferPtr,"ptr",this.brush)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawLine
             ;
@@ -1741,9 +1740,9 @@ status = 0
                 } else {
                     DllCall(this._DrawLine,"Ptr",this.renderTarget,"float",x1,"float",y1,"float",x2,"float",y2,"ptr",this.brush,"float",thickness,"ptr",(rounded?this.strokeRounded:this.stroke))
                 }
-                
+
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawLines
             ;
@@ -1782,7 +1781,7 @@ status = 0
                 }
                 return 1
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;DrawPolygon
             ;
@@ -1797,7 +1796,7 @@ status = 0
             DrawPolygon(points,color,thickness:=1,rounded:=0,xOffset:=0,yOffset:=0) {
                 if (points.length() < 3)
                     return 0
-                
+
                 if (DllCall(this.vTable(this.factory,10),"Ptr",this.factory,"Ptr*",pGeom) = 0) {
                     if (DllCall(this.vTable(pGeom,17),"Ptr",pGeom,"ptr*",sink) = 0) {
                         this.SetBrushColor(color)
@@ -1820,7 +1819,7 @@ status = 0
                             DllCall(this.vTable(sink,8),"ptr",sink,"uint",1)
                             DllCall(this.vTable(sink,9),"ptr",sink)
                         }
-                        
+
                         if (DllCall(this.vTable(this.renderTarget,22),"Ptr",this.renderTarget,"Ptr",pGeom,"ptr",this.brush,"float",thickness,"ptr",(rounded?this.strokeRounded:this.stroke)) = 0) {
                             DllCall(this.vTable(sink,2),"ptr",sink)
                             DllCall(this.vTable(pGeom,2),"Ptr",pGeom)
@@ -1830,11 +1829,11 @@ status = 0
                         DllCall(this.vTable(pGeom,2),"Ptr",pGeom)
                     }
                 }
-                
-                
+
+
                 return 0
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;FillPolygon
             ;
@@ -1848,7 +1847,7 @@ status = 0
             FillPolygon(points,color,xoffset:=0,yoffset:=0) {
                 if (points.length() < 3)
                     return 0
-                
+
                 if (DllCall(this.vTable(this.factory,10),"Ptr",this.factory,"Ptr*",pGeom) = 0) {
                     if (DllCall(this.vTable(pGeom,17),"Ptr",pGeom,"ptr*",sink) = 0) {
                         this.SetBrushColor(color)
@@ -1871,7 +1870,7 @@ status = 0
                             DllCall(this.vTable(sink,8),"ptr",sink,"uint",1)
                             DllCall(this.vTable(sink,9),"ptr",sink)
                         }
-                        
+
                         if (DllCall(this.vTable(this.renderTarget,23),"Ptr",this.renderTarget,"Ptr",pGeom,"ptr",this.brush,"ptr",0) = 0) {
                             DllCall(this.vTable(sink,2),"ptr",sink)
                             DllCall(this.vTable(pGeom,2),"Ptr",pGeom)
@@ -1879,14 +1878,14 @@ status = 0
                         }
                         DllCall(this.vTable(sink,2),"ptr",sink)
                         DllCall(this.vTable(pGeom,2),"Ptr",pGeom)
-                        
+
                     }
                 }
-                
-                
+
+
                 return 0
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;SetPosition
             ;
@@ -1898,7 +1897,7 @@ status = 0
             ;return             ;               Void
             ;
             ;notes              :               Only used when not attached to a window
-            
+
             SetPosition(x,y,w:=0,h:=0) {
                 this.x := x
                 this.y := y
@@ -1910,7 +1909,7 @@ status = 0
                 }
                 DllCall("MoveWindow","Uptr",this.hwnd,"int",x,"int",y,"int",this.width,"int",this.height,"char",1)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;GetImageDimensions
             ;
@@ -1919,7 +1918,7 @@ status = 0
             ;&h                 :               Height of image
             ;
             ;return             ;               Void
-            
+
             GetImageDimensions(image,byref w, byref h) {
                 if (!i := this.imageCache[image]) {
                     i := this.cacheImage(image)
@@ -1927,7 +1926,7 @@ status = 0
                 w := i.w
                 h := i.h
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;GetMousePos
             ;
@@ -1936,7 +1935,7 @@ status = 0
             ;realRegionOnly     :               Return 1 only if in the real region, which does not include the invisible borders, (client area does not have borders)
             ;
             ;return             ;               Returns 1 if mouse within window/client region; 0 otherwise
-            
+
             GetMousePos(byref x, byref y, realRegionOnly:=0) {
                 DllCall("GetCursorPos","ptr",this.tBufferPtr)
                 x := NumGet(this.tBufferPtr,0,"int")
@@ -1950,20 +1949,20 @@ status = 0
                 x += this.offX
                 y += this.offY
                 return (x >= this.realX and y >= this.realY and x <= this.realX2 and y <= this.realY2)
-                
+
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;Clear
             ;
             ;notes                      :           Clears the overlay, essentially the same as running BeginDraw followed by EndDraw
-            
+
             Clear() {
                 DllCall(this._BeginDraw,"Ptr",this.renderTarget)
                 DllCall(this._Clear,"Ptr",this.renderTarget,"Ptr",this.clrPtr)
                 DllCall(this._EndDraw,"Ptr",this.renderTarget,"Ptr*",tag1,"Ptr*",tag2)
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;RegCallback
             ;
@@ -1971,24 +1970,24 @@ status = 0
             ;&callback                  :           Name of the callback to assign the function to
             ;
             ;notes                      :           Example: overlay.RegCallback(Func("funcName"),"Size"); See top for param info
-            
+
             RegCallback(func,callback) {
                 if (this.callbacks.haskey(callback))
                     this.callbacks[callback] := func
             }
-            
+
             ;####################################################################################################################################################################################################################################
             ;ClearCallback
             ;
             ;&callback                  :           Name of the callback to clear functions of
             ;
             ;notes                      :           Clears callback
-            
+
             ClearCallback(callback) {
                 if (this.callbacks.haskey(callback))
                     this.callbacks[callback] := 0
             }   
-            
+
             PushLayerRectangle(x,y,w,h) {
                 VarSetCapacity(info,64,0)
                 NumPut(x,info,0,"float")
@@ -2032,13 +2031,13 @@ status = 0
             PopLayer() {
                 DllCall(this.vTable(this.renderTarget,41),"Ptr",this.renderTarget)
             }
-            
+
             ;0 = off
             ;1 = on
             SetAntialias(state:=0) {
                 DllCall(this.vTable(this.renderTarget,32),"Ptr",this.renderTarget,"Uint",!state)
             }
-            
+
             ;########################################## 
             ;  internal functions used by the class
             ;########################################## 
@@ -2058,7 +2057,7 @@ status = 0
                 this.y := y := y1
                 this.x2 := x + w
                 this.y2 := y + h
-                
+
                 hBorders := (this.attachClient ? 0 : NumGet(this.tBufferPtr,48,"int"))
                 vBorders := (this.attachClient ? 0 : NumGet(this.tBufferPtr,52,"int"))
                 this.realX := hBorders
@@ -2254,6 +2253,21 @@ hotkeyDefinitions := ["F8:StartScript", "F7:ReloadScript", "F6:ExitApplication"]
 ; Initialize hotkeys associative array
 hotkeys := {}
 
+; Dynamically create hotkey bindings and populate the hotkeys array
+Loop, % hotkeyDefinitions.MaxIndex()
+{
+    hotkeyDef := hotkeyDefinitions[A_Index]
+    StringSplit, hotkeyParts, hotkeyDef, `: ; Split the hotkey definition into parts
+    hotkey := hotkeyParts1
+    action := hotkeyParts2
+
+    ; Create the hotkey binding dynamically
+    Hotkey, %hotkey%, %action%
+
+    ; Populate the hotkeys array
+    hotkeys[hotkey] := action
+}
+
 ; Ask the user for the score limit at the start
 scoreLimit := ""
 Loop
@@ -2275,7 +2289,7 @@ Loop
 translateHotkey(hotkey) {
     result := ""
     key := ""
-    
+
     Loop, Parse, hotkey
     {
         if (A_LoopField = "^")
@@ -2289,7 +2303,7 @@ translateHotkey(hotkey) {
         else
             key .= A_LoopField
     }
-    
+
     result .= key
     return result
 }
@@ -2416,7 +2430,7 @@ StartScript:
     360Controller.Buttons.LB.SetState(false)
     Sleep, 100
     Loop {
-        
+
         ; From Orbit
         360Controller.Buttons.Start.SetState(true)
         Sleep, 750
@@ -2438,14 +2452,21 @@ StartScript:
         360Controller.Buttons.A.SetState(true)
         Sleep, 100
         360Controller.Buttons.A.SetState(false)
-        Sleep, 54000
+        Sleep, 57500
 
         ; Strafe Left to be on flag A
         360Controller.Axes.LX.SetState(0)
         PreciseSleep(1830)
         360Controller.Axes.LX.SetState(50)
         Sleep, 5500
-        
+        ; ; Switch to heavy incase equipped a LIGHTWEIGHT FRAME weapon
+        ; ; There are 2 heavy weps that are lightweight frames, both swords: Goldtusk and Quickfang so not best way to deal with holding lightweight frame
+        ; ; Instead I've adjusted timings to account for holding lightweight frames
+        ; 360Controller.Buttons.Y.SetState(true)
+        ; Sleep, 1000
+        ; 360Controller.Buttons.Y.SetState(false)
+
+
         ; super for orbs
         360Controller.Buttons.RB.SetState(true)
         360Controller.Buttons.LB.SetState(true)
@@ -2454,7 +2475,8 @@ StartScript:
         360Controller.Buttons.LB.SetState(false)
         Sleep, 3200
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPTURED FLAG A
-        
+
+
         ; Sprint Forward just enough to strafe right
         360Controller.Buttons.LS.SetState(true)
         360Controller.Axes.LY.SetState(100)
@@ -2549,6 +2571,8 @@ StartScript:
         360Controller.Axes.LX.SetState(50)
         Sleep, 200
 
+        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Cap FLAG B - ignore
+
         ; Super Spam
         Gosub, SuperSpam
 
@@ -2562,21 +2586,22 @@ Return
 
 SuperSpam:
     global scoreLimit
+
     if (scoreLimit = 25)
     {
         Loop, 3
         {
-                
+
                 360Controller.Buttons.RB.SetState(true)
                 360Controller.Buttons.LB.SetState(true)
                 PreciseSleep(100)
                 360Controller.Buttons.RB.SetState(false)
                 360Controller.Buttons.LB.SetState(false)
                 Sleep, 13000
-                
+
         }
         Sleep, 9000  ; Wait before pressing the orbit button
-        
+
     }
     else if (scoreLimit = 50)
     {
@@ -2589,9 +2614,10 @@ SuperSpam:
             360Controller.Buttons.LB.SetState(false)
             Sleep, 13000
         }
-        Sleep, 9000  ; Wait  before pressing the orbit button
+        Sleep, 9000  ; Wait  seconds before pressing the orbit button
     }
 Return
+
 
 ; Reload Script Label
 ReloadScript:
