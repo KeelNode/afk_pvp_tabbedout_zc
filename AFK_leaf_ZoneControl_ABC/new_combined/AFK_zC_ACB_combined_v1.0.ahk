@@ -2254,21 +2254,6 @@ hotkeyDefinitions := ["F8:StartScript", "F7:ReloadScript", "F6:ExitApplication"]
 ; Initialize hotkeys associative array
 hotkeys := {}
 
-; Dynamically create hotkey bindings and populate the hotkeys array
-Loop, % hotkeyDefinitions.MaxIndex()
-{
-    hotkeyDef := hotkeyDefinitions[A_Index]
-    StringSplit, hotkeyParts, hotkeyDef, `: ; Split the hotkey definition into parts
-    hotkey := hotkeyParts1
-    action := hotkeyParts2
-    
-    ; Create the hotkey binding dynamically
-    Hotkey, %hotkey%, %action%
-
-    ; Populate the hotkeys array
-    hotkeys[hotkey] := action
-}
-
 ; Ask the user for the score limit at the start
 scoreLimit := ""
 Loop
@@ -2460,14 +2445,7 @@ StartScript:
         PreciseSleep(1830)
         360Controller.Axes.LX.SetState(50)
         Sleep, 5500
-        ; ; Switch to heavy incase equipped a LIGHTWEIGHT FRAME weapon
-        ; ; There are 2 heavy weps that are lightweight frames, both swords: Goldtusk and Quickfang so not best way to deal with holding lightweight frame
-        ; ; Instead I've adjusted timings to account for holding lightweight frames
-        ; 360Controller.Buttons.Y.SetState(true)
-        ; Sleep, 1000
-        ; 360Controller.Buttons.Y.SetState(false)
-
-
+        
         ; super for orbs
         360Controller.Buttons.RB.SetState(true)
         360Controller.Buttons.LB.SetState(true)
@@ -2477,7 +2455,6 @@ StartScript:
         Sleep, 3200
         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPTURED FLAG A
         
-
         ; Sprint Forward just enough to strafe right
         360Controller.Buttons.LS.SetState(true)
         360Controller.Axes.LY.SetState(100)
@@ -2572,8 +2549,6 @@ StartScript:
         360Controller.Axes.LX.SetState(50)
         Sleep, 200
 
-        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Cap FLAG B - ignore
-
         ; Super Spam
         Gosub, SuperSpam
 
@@ -2587,7 +2562,6 @@ Return
 
 SuperSpam:
     global scoreLimit
-
     if (scoreLimit = 25)
     {
         Loop, 3
@@ -2615,10 +2589,9 @@ SuperSpam:
             360Controller.Buttons.LB.SetState(false)
             Sleep, 13000
         }
-        Sleep, 9000  ; Wait  seconds before pressing the orbit button
+        Sleep, 9000  ; Wait  before pressing the orbit button
     }
 Return
-
 
 ; Reload Script Label
 ReloadScript:
