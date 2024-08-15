@@ -29,6 +29,11 @@ If you like this macro and want to support my work, you can do so via Ko-Fi - [K
 # Destiny setup/settings/guide:
 ## Quick guide:
 ```
+Important notes:
+Note#1: Macro will stop working if your game freezes, PC freezes or anything of the sorts, so drop your graphics as much as you can and don't run too many heavy applications in the background if your PC cannot handle too much
+Note#2: MUST HAVE SOLSTICE FORGE IN YOUR INVENTORY to gain Silver Leaves
+
+##################################
 - GAME setup:
     - GAME TYPE  : Zone Control
     - GAME MAP   : Javelin-4
@@ -52,7 +57,11 @@ OTHER
 ```
   
 ## Full guide:
-
+```
+Important notes:
+Note#1: Macro will stop working if your game freezes, PC freezes or anything of the sorts, so drop your graphics as much as you can and don't run too many heavy applications in the background if your PC cannot handle too much
+Note#2: MUST HAVE SOLSTICE FORGE IN YOUR INVENTORY to gain Silver Leaves
+```
 ### Controller Settings
 - **Button Layout:** Reset to Default
 - **Look sensitivity:** `3`
