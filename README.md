@@ -15,6 +15,7 @@ This macro farms Zone Control game mode by capturing all 3 flags, while occasion
 - Obtain event items such as Silver Leaves (during Solstice)
 - Option for choosing Match Score Limit set in game (25, 50, 100)
   - 75 provides same Crucible Reputation points as 50, so I have removed that
+  - 100 provides more Crucible reputation than 50 (something like 5x I think, not sure on exact value)
 - Option for choosing if game is on HDD or SSD to account for slow load times
 ### Work In Progress: 
 ✅ option to swap between Score Limits of 25/50/100 - respectively prioritising and providing more rep.
