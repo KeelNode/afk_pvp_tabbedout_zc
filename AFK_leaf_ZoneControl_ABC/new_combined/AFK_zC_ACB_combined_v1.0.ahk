@@ -2452,7 +2452,7 @@ StartScript:
         360Controller.Buttons.A.SetState(true)
         Sleep, 100
         360Controller.Buttons.A.SetState(false)
-        Sleep, 57500
+        Sleep, 57500 ; This timer is to delay when to move after landing
 
         ; Strafe Left to be on flag A
         360Controller.Axes.LX.SetState(0)
@@ -2513,7 +2513,7 @@ StartScript:
 
         ; Turn slightly LEFT to look at wall
         360Controller.Axes.RX.SetState(20)
-        PreciseSleep(815) 
+        PreciseSleep(825) 
         360Controller.Axes.RX.SetState(50)
         Sleep, 200
 
@@ -2613,6 +2613,14 @@ SuperSpam:
             360Controller.Buttons.RB.SetState(false)
             360Controller.Buttons.LB.SetState(false)
             Sleep, 13000
+            ; Shuffle back and forward to avoid afk
+            360Controller.Axes.LY.SetState(0)
+            PreciseSleep(100)
+            360Controller.Axes.LY.SetState(50)
+            Sleep, 200
+            360Controller.Axes.LY.SetState(100)
+            PreciseSleep(100)
+            360Controller.Axes.LY.SetState(50)
         }
         Sleep, 9000  ; Wait  seconds before pressing the orbit button
     }
