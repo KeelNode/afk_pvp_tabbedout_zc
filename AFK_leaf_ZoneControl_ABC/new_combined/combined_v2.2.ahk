@@ -2648,7 +2648,7 @@ SuperSpam:
     if (scoreLimit = 25)
         superCount := 3
     else if (scoreLimit = 50)
-        superCount := 8
+        superCount := 7
     else if (scoreLimit = 100)
         superCount := 18
 
