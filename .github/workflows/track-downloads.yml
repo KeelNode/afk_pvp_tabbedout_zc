@@ -15,14 +15,14 @@ jobs:
         download_count=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
         https://api.github.com/repos/KeelNode/afk_pvp_tabbedout_zc/releases/assets/120641248 \
         | jq '.download_count')
-        echo "::set-output name=downloads::$download_count"
+        echo "downloads=$download_count" >> $GITHUB_ENV
 
     - name: Log Download Count
-      run: echo "Download count: ${{ steps.get_downloads.outputs.downloads }}"
+      run: echo "Download count: ${{ env.downloads }}"
 
     - name: Create an Issue (Optional)
-      if: ${{ steps.get_downloads.outputs.downloads }} > 0
+      if: ${{ env.downloads }} > 0
       run: |
         curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        -d '{"title":"Download Count Update","body":"Download count: '"${{ steps.get_downloads.outputs.downloads }}"'"}' \
+        -d '{"title":"Download Count Update","body":"Download count: '"${{ env.downloads }}"'"}' \
         https://api.github.com/repos/KeelNode/afk_pvp_tabbedout_zc/issues
