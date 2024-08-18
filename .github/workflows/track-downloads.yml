@@ -1,0 +1,28 @@
+name: Track Release Downloads
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # This runs the action daily at midnight UTC
+
+jobs:
+  download-tracker:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get Download Count
+      id: get_downloads
+      run: |
+        download_count=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        https://api.github.com/repos/KeelNode/afk_pvp_tabbedout_zc/releases/assets/120641248 \
+        | jq '.download_count')
+        echo "::set-output name=downloads::$download_count"
+
+    - name: Log Download Count
+      run: echo "Download count: ${{ steps.get_downloads.outputs.downloads }}"
+
+    - name: Create an Issue (Optional)
+      if: ${{ steps.get_downloads.outputs.downloads }} > 0
+      run: |
+        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d '{"title":"Download Count Update","body":"Download count: '"${{ steps.get_downloads.outputs.downloads }}"'"}' \
+        https://api.github.com/repos/KeelNode/afk_pvp_tabbedout_zc/issues
