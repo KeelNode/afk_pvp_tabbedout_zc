@@ -1,6 +1,13 @@
 # AFK Crucible reputation, Weapon level & Event items farm
+**** 
+NOTE: <br>
+It is worth noting certain people have been banned possibly for related to the use of macros. <br>
+I have been using this macro for a week for days at a time and I have been ok. <br>
+However, with this information, use this macro with caution, you _should_ be fine if ONLY using it in Private Match. <br>
+**** 
 ### Download Link:
-Download the "COMBINED.zip" file from the [latest release](https://github.com/KeelNode/afk_pvp_tabbedout_zc/releases/)
+Download the "COMBINED_v.zip" file from the [latest release](https://github.com/KeelNode/afk_pvp_tabbedout_zc/releases/) <br>
+`the largest number after V is the most recent, i.e: Combined_v2.2.zip`
 
 ## About the macro
 This macro farms Zone Control game mode by capturing all 3 flags, while occasionally pressing Super to complete challenges, bounties etc.
