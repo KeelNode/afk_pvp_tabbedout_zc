@@ -2669,7 +2669,7 @@ SuperSpam:
         ; Perform the super action
         tooltipText := "Super " superIndex "/" superCount " in progress...`nSuper then Shuffle (if 50+ score) to avoid AFK..."
         Tooltip, %tooltipText%
-        Sleep 1000
+        Sleep 500
         
         360Controller.Buttons.RB.SetState(true)
         360Controller.Buttons.LB.SetState(true)
