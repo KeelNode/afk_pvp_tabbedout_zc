@@ -2361,20 +2361,24 @@ Gui, Add, Text, y+0 c6c8197, ** If you are unsure, try both and see which works 
 Gui, Add, Radio, vhddSsdChoice, SSD
 Gui, Add, Radio, y+1, HDD
 
+
+
 ; Add a button to save settings and display the current macro
 Gui, Add, Button, gSaveSettings x400, Save Settings
 Gui, Show,, %A_ScriptName% - AFK PvP - KN :3
 
-; Flashy weewooweewoo taskbar title bar
 Loop 5
 {
     Gui Flash
     Sleep 500  ; It's quite sensitive to this value; altering it may change the behavior in unexpected ways.
 }
+
 Return
 
 SaveSettings:
 Gui, Submit, NoHide
+
+
 ; Check if a score limit and storage type have been selected
 if (scoreLimitChoice = 0 || hddSsdChoice = 0) {
     Gui, New, +AlwaysOnTop
@@ -2408,8 +2412,8 @@ Gui, Destroy  ; Close the settings GUI after saving
 
 ; Confirm settings without starting the script
 MsgBox, Settings saved. `n`nScore Limit: %scoreLimit% `nStorage Type: %hddSsd% `n`nHotkeys: `n%startHotkey% - Start `n%reloadHotkey% - Stop/Reload `n%exitHotkey% - Quit
-Return
 
+Return
 
 ; Function to handle the click on the first Discord link
 OpenDiscord:
@@ -2470,12 +2474,15 @@ StartScript:
     ; Determine delay based on storage type
     if (hddSsd = "SSD")
     {
-        delay := 52000  ; SSD loading
-       
+        delay := 50000  ; SSD loading
     }
     else if (hddSsd = "HDD")
     {
         delay := 58000  ; HDD loading
+    }
+    else
+    {
+        delay := 58000  ; if nothing selected
     }
 
     Loop {
@@ -2506,7 +2513,6 @@ StartScript:
         delaySeconds := delay / 1000
         ShowTooltipCountdown("Launched. Waiting for " delaySeconds " seconds...", delay)
 
-
         ; Strafe Left to be on flag A
         ShowTooltip("Moving to Flag A")
         360Controller.Axes.LX.SetState(0)
@@ -2524,7 +2530,6 @@ StartScript:
         Sleep, 2500
 
         ;; CAPTURED FLAG A
-
         ; Sprint Forward just enough to strafe right
         ; ShowTooltip("Moving from Flag A")
         360Controller.Buttons.LS.SetState(true)
@@ -2567,7 +2572,7 @@ StartScript:
         Sleep, 200
 
         ; Sprint Forward towards C FLAG  (towards middle/corner box)
-        ; ShowTooltip("Moving to Flag C")
+       
         360Controller.Buttons.LS.SetState(true)
         360Controller.Axes.LY.SetState(100)
         PreciseSleep(8000)
@@ -2625,9 +2630,10 @@ StartScript:
         360Controller.Buttons.RB.SetState(false)
         360Controller.Buttons.LB.SetState(false)
         SLeep, 500
-        ;; CAPTURED FLAG B then super spam
-        Gosub, SuperSpam        
-        ShowTooltipCountdown("Returning to orbit in 13 seconds", 13000)
+        ;; CAPTURED FLAG B then Spam Super
+        Gosub, SuperSpam
+
+        ShowTooltipCountdown("Returning to orbit in 12 seconds", 12000)
         360Controller.Buttons.Y.SetState(true)
         Sleep, 7000
         360Controller.Buttons.Y.SetState(false)
@@ -2640,7 +2646,7 @@ SuperSpam:
     global scoreLimit
     ; Determine the number of loops based on score limit
     if (scoreLimit = 25)
-        superCount := 4
+        superCount := 3
     else if (scoreLimit = 50)
         superCount := 8
     else if (scoreLimit = 100)
@@ -2650,7 +2656,7 @@ SuperSpam:
     {
         ; Display the current super count along with countdown and shuffle info
         superIndex := A_Index
-        totalSeconds := 11  ; Total duration for the countdown 
+        totalSeconds := 11  ; Total duration for the countdown
 
         ; Countdown before performing the super
         Loop, %totalSeconds%
@@ -2663,7 +2669,7 @@ SuperSpam:
         ; Perform the super action
         tooltipText := "Super " superIndex "/" superCount " in progress...`nSuper then Shuffle (if 50+ score) to avoid AFK..."
         Tooltip, %tooltipText%
-        Sleep, 1000
+        Sleep 1000
         
         360Controller.Buttons.RB.SetState(true)
         360Controller.Buttons.LB.SetState(true)
@@ -2691,76 +2697,24 @@ SuperSpam:
     Tooltip  ; Clear tooltip after loop ends
 Return
 
-; Global variables to store the tooltip position
-global TooltipX := 0
-global TooltipY := 0
-global IsDragging := false
-global OffsetX := 0
-global OffsetY := 0
+; Tooltip function to show major movements
+ShowTooltip(message) {
+    Tooltip, %message%
+    Sleep, 1000
+    Tooltip  
+}
 
-; Tooltip countdown for major things with draggable functionality
+; Tooltip countdown for major things
 ShowTooltipCountdown(message, duration) {
-    global TooltipX, TooltipY, IsDragging, OffsetX, OffsetY
-
-    ; Set default tooltip position if not already set
-    if (TooltipX = 0 and TooltipY = 0) {
-        SysGet, ScreenWidth, 78
-        SysGet, ScreenHeight, 79
-        TooltipX := ScreenWidth - 200  ; Default X position (bottom right)
-        TooltipY := ScreenHeight - 50  ; Default Y position (bottom right)
-    }
-
-    ; Display the countdown tooltip at the calculated position
     Loop, % (duration / 1000)  ; Loop for the duration in seconds
     {
         secondsLeft := A_Index
-        Tooltip, %message%`n %secondsLeft% seconds remaining..., %TooltipX%, %TooltipY%
+        Tooltip, %message%`n %secondsLeft% seconds ...
         Sleep, 1000
-
-        ; Check if the user is dragging the tooltip
-        if (GetKeyState("LButton", "P")) {
-            MouseGetPos, MouseX, MouseY
-            if (!IsDragging) {
-                IsDragging := true
-                OffsetX := MouseX - TooltipX
-                OffsetY := MouseY - TooltipY
-            }
-            TooltipX := MouseX - OffsetX
-            TooltipY := MouseY - OffsetY
-        } else {
-            IsDragging := false
-        }
     }
-    Tooltip  ; Hide the tooltip after countdown
+    Tooltip  
 }
 
-; Tooltip function to show major movements, with draggable functionality
-ShowTooltip(message) {
-    global TooltipX, TooltipY, IsDragging, OffsetX, OffsetY
-
-    ; Display the tooltip at the current position
-    Tooltip, %message%, %TooltipX%, %TooltipY%
-
-    ; Allow dragging of the tooltip
-    Loop {
-        if (GetKeyState("LButton", "P")) {
-            MouseGetPos, MouseX, MouseY
-            if (!IsDragging) {
-                IsDragging := true
-                OffsetX := MouseX - TooltipX
-                OffsetY := MouseY - TooltipY
-            }
-            TooltipX := MouseX - OffsetX
-            TooltipY := MouseY - OffsetY
-            Tooltip, %message%, %TooltipX%, %TooltipY%
-        } else {
-            IsDragging := false
-            Break
-        }
-        Sleep, 10
-    }
-    Tooltip  ; Clear tooltip after it's shown
-}
 
 ReloadScript:
     Reload
